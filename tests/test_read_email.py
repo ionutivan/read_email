@@ -6,6 +6,7 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
+import outlook_mfa
 import pytest
 
 from read_email import (
@@ -124,7 +125,7 @@ def test_get_latest_email_from_outlook_returns_expected_message(monkeypatch):
             assert name == "Outlook.Application"
             return _FakeDispatch(namespace)
 
-    monkeypatch.setattr(module, "_win32_client", _FakeWin32Client())
+    monkeypatch.setattr(outlook_mfa, "_win32_client", _FakeWin32Client())
 
     email = get_latest_email_from_outlook("variable 1")
 
@@ -158,7 +159,7 @@ def test_get_latest_mfa_code_from_outlook_returns_code(monkeypatch):
             assert name == "Outlook.Application"
             return _FakeDispatch(namespace)
 
-    monkeypatch.setattr(module, "_win32_client", _FakeWin32Client())
+    monkeypatch.setattr(outlook_mfa, "_win32_client", _FakeWin32Client())
 
     code = get_latest_mfa_code_from_outlook("variable 1")
 
@@ -184,7 +185,7 @@ def test_get_latest_mfa_code_from_outlook_raises_when_missing(monkeypatch):
             assert name == "Outlook.Application"
             return _FakeDispatch(namespace)
 
-    monkeypatch.setattr(module, "_win32_client", _FakeWin32Client())
+    monkeypatch.setattr(outlook_mfa, "_win32_client", _FakeWin32Client())
 
     with pytest.raises(LookupError):
         get_latest_mfa_code_from_outlook("Inbox")
@@ -193,7 +194,7 @@ def test_get_latest_mfa_code_from_outlook_raises_when_missing(monkeypatch):
 def test_get_latest_email_from_outlook_raises_when_missing_dependency(monkeypatch):
     import read_email as module
 
-    monkeypatch.setattr(module, "_win32_client", None)
+    monkeypatch.setattr(outlook_mfa, "_win32_client", None)
 
     with pytest.raises(RuntimeError):
         get_latest_email_from_outlook("Inbox")
@@ -207,7 +208,7 @@ def test_cli_main_prints_code(monkeypatch, capsys):
         assert pattern == r"\d+"
         return "445566"
 
-    monkeypatch.setattr(module, "get_latest_mfa_code_from_outlook", fake_get_latest)
+    monkeypatch.setattr(outlook_mfa, "get_latest_mfa_code_from_outlook", fake_get_latest)
 
     exit_code = main(["--folder", "variable 1", "--pattern", r"\d+"])
 
@@ -223,7 +224,7 @@ def test_cli_main_exits_with_error(monkeypatch, capsys):
     def fake_get_latest(folder, pattern):
         raise LookupError("no code found")
 
-    monkeypatch.setattr(module, "get_latest_mfa_code_from_outlook", fake_get_latest)
+    monkeypatch.setattr(outlook_mfa, "get_latest_mfa_code_from_outlook", fake_get_latest)
 
     with pytest.raises(SystemExit) as excinfo:
         main(["--folder", "Inbox"])

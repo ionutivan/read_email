@@ -17,7 +17,10 @@ only the message bodies.
 ## Outlook MFA helper
 
 If you have `pywin32` installed on Windows, the module can connect to Outlook and
-extract the most recent multi-factor authentication code from a folder:
+extract the most recent multi-factor authentication code from a folder. The
+automation helpers live in `outlook_mfa.py`, but they are re-exported through the
+top-level `read_email` module so you can continue importing everything from one
+place:
 
 ```bash
 python -m read_email --folder "Inbox/variable 1"
