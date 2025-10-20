@@ -24,6 +24,20 @@ print(email.subject)
 print(email.body)
 ```
 
+## Command-line usage
+
+Extract the MFA code from the most recent `.eml` file in a directory:
+
+```bash
+PYTHONPATH=src python -m read_email path/to/email/directory
+```
+
+You can also provide a specific `.eml` file path:
+
+```bash
+PYTHONPATH=src python -m read_email path/to/email.eml
+```
+
 ## Tests
 
 Run unit tests with `pytest`:
