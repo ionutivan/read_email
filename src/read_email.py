@@ -58,13 +58,19 @@ def iter_email_bodies(paths: Iterable[str | Path]) -> Iterable[str]:
 
 
 # Outlook helpers are exposed from ``outlook_mfa`` to keep this module focused on
-# .eml parsing while still providing a stable public interface.
-from outlook_mfa import (  # noqa: E402  (imported at module level for export)
-    extract_mfa_code,
-    get_latest_email_from_outlook,
-    get_latest_mfa_code_from_outlook,
-    main as outlook_main,
-)
+# .eml parsing while still providing a stable public interface.  The conditional
+# import supports both package-style usage (``read_email`` installed via a
+# src-layout package) and running the module directly from a source checkout
+# where ``outlook_mfa`` resides beside this file on ``sys.path``.
+try:  # pragma: no cover - the fallback is exercised in the test suite
+    from . import outlook_mfa as _outlook_mfa  # type: ignore[attr-defined]
+except ImportError:  # pragma: no cover - depends on import style
+    import outlook_mfa as _outlook_mfa  # type: ignore[import-not-found]
+
+extract_mfa_code = _outlook_mfa.extract_mfa_code
+get_latest_email_from_outlook = _outlook_mfa.get_latest_email_from_outlook
+get_latest_mfa_code_from_outlook = _outlook_mfa.get_latest_mfa_code_from_outlook
+outlook_main = _outlook_mfa.main
 
 __all__ = [
     "EmailContent",

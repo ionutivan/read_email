@@ -34,6 +34,17 @@ def _resolve_outlook_folder(namespace, folder_path: str):
     return folder
 
 
+def _load_email_content_class():
+    """Return the ``EmailContent`` dataclass without creating hard import cycles."""
+
+    try:  # pragma: no cover - depends on import style
+        from .read_email import EmailContent  # type: ignore[attr-defined]
+    except ImportError:  # pragma: no cover - depends on execution context
+        from read_email import EmailContent  # type: ignore[import-not-found]
+
+    return EmailContent
+
+
 def get_latest_email_from_outlook(folder_path: str = "Inbox"):
     """Return the most recent email from the specified Outlook folder."""
 
@@ -52,7 +63,7 @@ def get_latest_email_from_outlook(folder_path: str = "Inbox"):
     if message is None:
         raise LookupError(f"No messages found in Outlook folder '{folder_path}'.")
 
-    from read_email import EmailContent  # Local import to avoid circular dependency
+    EmailContent = _load_email_content_class()
 
     return EmailContent(
         subject=getattr(message, "Subject", None),
